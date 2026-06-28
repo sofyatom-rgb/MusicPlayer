@@ -1,9 +1,8 @@
 import os
 import pygame as pg
 import time
-import tkinter as tk
+import customtkinter as ctk
 from tkinter import filedialog
-from tkinter import ttk
 
 class Track:
     def __init__(self, filepath):
@@ -31,19 +30,19 @@ cur_track = None
 def change(newVal):
     pg.mixer.music.set_volume(float(newVal))
 def open_trek():
-    filepath = tk.filedialog.askopenfilename()
+    filepath = ctk.filedialog.askopenfilename()
     global cur_track
     cur_track = Track(filepath)
     cur_track.start_new()
-    lbl1 = tk.Label(root, text=f'Вы добавили трек: {os.path.basename(filepath)}')
+    lbl1 = ctk.CTkLabel(root, text=f'Вы добавили трек: {os.path.basename(filepath)}')
     lbl1.pack()
-    btn_play = ttk.Button(text='Играть сначала', command=cur_track.run1)
+    btn_play = ctk.CTkButton(root,text='Играть сначала', command=cur_track.run1)
     btn_play.pack()
-    btn_pause = ttk.Button(text='Пауза', command=cur_track.pause1)
+    btn_pause = ctk.CTkButton(root,text='Пауза', command=cur_track.pause1)
     btn_pause.pack()
-    btn_cont = ttk.Button(text='Продолжить', command=cur_track.continue1)
+    btn_cont = ctk.CTkButton(root,text='Продолжить', command=cur_track.continue1)
     btn_cont.pack()
-    scale = ttk.Scale(length=100, from_=0.0, to=1.0, value=0.5, command=change)
+    scale = ctk.CTkSlider(root, width=100, from_=0, to=1, command=change)
     scale.pack()
 class Playlist:
     def __init__(self, name):
@@ -55,10 +54,12 @@ class Playlist:
         self.tracks.remove(track)
 pg.init()
 pg.mixer.init()
-root = tk.Tk()
+ctk.set_appearance_mode("System")
+ctk.set_default_color_theme("blue")
+root = ctk.CTk()
 root.title('MusicPlayer')
 root.geometry("500x500")
-btn = ttk.Button(text='Выберите трек', command=open_trek)
+btn = ctk.CTkButton(root,text='Выберите трек', command=open_trek)
 btn.pack()
 root.mainloop()
 # print('Введите load чтобы загрузить новый трек, а затем его название')
