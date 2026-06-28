@@ -28,19 +28,23 @@ class Track:
     def continue1(self):
         pg.mixer.music.unpause()
 cur_track = None
+def change(newVal):
+    pg.mixer.music.set_volume(float(newVal))
 def open_trek():
     filepath = tk.filedialog.askopenfilename()
     global cur_track
     cur_track = Track(filepath)
     cur_track.start_new()
     lbl1 = tk.Label(root, text=f'Вы добавили трек: {os.path.basename(filepath)}')
-    lbl1.place(x=30, y=30)
+    lbl1.pack()
     btn_play = ttk.Button(text='Играть сначала', command=cur_track.run1)
-    btn_play.place(x=30, y = 70)
+    btn_play.pack()
     btn_pause = ttk.Button(text='Пауза', command=cur_track.pause1)
-    btn_pause.place(x=150, y=70)
+    btn_pause.pack()
     btn_cont = ttk.Button(text='Продолжить', command=cur_track.continue1)
-    btn_cont.place(x=250, y=70)
+    btn_cont.pack()
+    scale = ttk.Scale(length=100, from_=0.0, to=1.0, value=0.5, command=change)
+    scale.pack()
 class Playlist:
     def __init__(self, name):
         self.name = name
@@ -51,12 +55,9 @@ class Playlist:
         self.tracks.remove(track)
 pg.init()
 pg.mixer.init()
-# screen = pg.display.set_mode((400, 300))
-# pg.display.set_caption("Мой плеер")
 root = tk.Tk()
 root.title('MusicPlayer')
 root.geometry("500x500")
-root.resizable(width=False, height=False)
 btn = ttk.Button(text='Выберите трек', command=open_trek)
 btn.pack()
 root.mainloop()
