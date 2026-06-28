@@ -36,14 +36,18 @@ def open_trek():
     cur_track.start_new()
     lbl1 = ctk.CTkLabel(root, text=f'Вы добавили трек: {os.path.basename(filepath)}')
     lbl1.pack()
-    btn_play = ctk.CTkButton(root,text='Играть сначала', command=cur_track.run1)
-    btn_play.pack()
-    btn_pause = ctk.CTkButton(root,text='Пауза', command=cur_track.pause1)
-    btn_pause.pack()
-    btn_cont = ctk.CTkButton(root,text='Продолжить', command=cur_track.continue1)
-    btn_cont.pack()
-    scale = ctk.CTkSlider(root, width=100, from_=0, to=1, command=change)
-    scale.pack()
+    frame_row = ctk.CTkFrame(root, fg_color="transparent")
+    frame_row.pack(pady=40)
+    btn_play = ctk.CTkButton(frame_row,text='Играть сначала', command=cur_track.run1)
+    btn_play.pack(side="left", padx=10)
+    btn_pause = ctk.CTkButton(frame_row,text='Пауза', command=cur_track.pause1)
+    btn_pause.pack(side="left", padx=10)
+    btn_cont = ctk.CTkButton(frame_row,text='Продолжить', command=cur_track.continue1)
+    btn_cont.pack(side="left", padx=10)
+    lbl2 = ctk.CTkLabel(frame_row, text='Гомкость:')
+    lbl2.pack(side="left", padx=10)
+    scale = ctk.CTkSlider(frame_row, width=100, from_=0, to=1, command=change)
+    scale.pack(side="left", padx=10)
 class Playlist:
     def __init__(self, name):
         self.name = name
@@ -62,36 +66,3 @@ root.geometry("500x500")
 btn = ctk.CTkButton(root,text='Выберите трек', command=open_trek)
 btn.pack()
 root.mainloop()
-# print('Введите load чтобы загрузить новый трек, а затем его название')
-# print('Введите add чтобы добавить в очередь новый трек, а затем его название')
-# MUSIC_END = pg.event.custom_type()
-# pg.mixer.music.set_endevent(MUSIC_END)
-# cur_track = Track('-1')
-# next_track = Track('-1')
-# while True:
-#     command = input().strip().lower()
-#     for event in pg.event.get():
-#         if event.type == MUSIC_END:
-#             cur_track = next_track
-#             next_track = 0
-#     if command == 'load':
-#         name = input().strip()
-#         sound = Track(name)
-#         sound.start_new()
-#         cur_track = sound
-#     elif command == 'add':
-#         name = input().strip()
-#         sound = Track(name)
-#         sound.add_to_queue()
-#         nex_track = sound
-#     elif command == '1':
-#         if cur_track.name == '-1':
-#             print('Сначала нужно загрузить трек')
-#         else:
-#             cur_track.run1()
-#     elif command == '0':
-#         cur_track.pause1()
-#         print(f'{cur_track.name} на паузе')
-#     elif command == '2':
-#         cur_track.continue1()
-#Riptide - Vance Joy.mp3
