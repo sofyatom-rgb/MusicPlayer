@@ -26,28 +26,6 @@ class Track:
         print('Трек на паузе, введите 2 чтобы возобновить его')
     def continue1(self):
         pg.mixer.music.unpause()
-cur_track = None
-def change(newVal):
-    pg.mixer.music.set_volume(float(newVal))
-def open_trek():
-    filepath = ctk.filedialog.askopenfilename()
-    global cur_track
-    cur_track = Track(filepath)
-    cur_track.start_new()
-    lbl1 = ctk.CTkLabel(root, text=f'Вы добавили трек: {os.path.basename(filepath)}')
-    lbl1.pack()
-    frame_row = ctk.CTkFrame(root, fg_color="transparent")
-    frame_row.pack(pady=40)
-    btn_play = ctk.CTkButton(frame_row,text='Играть сначала', command=cur_track.run1)
-    btn_play.pack(side="left", padx=10)
-    btn_pause = ctk.CTkButton(frame_row,text='Пауза', command=cur_track.pause1)
-    btn_pause.pack(side="left", padx=10)
-    btn_cont = ctk.CTkButton(frame_row,text='Продолжить', command=cur_track.continue1)
-    btn_cont.pack(side="left", padx=10)
-    lbl2 = ctk.CTkLabel(frame_row, text='Гомкость:')
-    lbl2.pack(side="left", padx=10)
-    scale = ctk.CTkSlider(frame_row, width=100, from_=0, to=1, command=change)
-    scale.pack(side="left", padx=10)
 class Playlist:
     def __init__(self, name):
         self.name = name
@@ -56,13 +34,54 @@ class Playlist:
         self.tracks.append(track)
     def delete(self, track):
         self.tracks.remove(track)
+cur_track = None
+def change(newVal):
+    global cur_track
+    if cur_track:
+        pg.mixer.music.set_volume(float(newVal))
+def open_trek():
+    filepath = ctk.filedialog.askopenfilename()
+    global cur_track
+    cur_track = Track(filepath)
+    cur_track.start_new()
+    btn_play.configure(state='normal')
+    btn_pause.configure(state='normal')
+    btn_cont.configure(state='normal')
+    scale.configure(state='normal')
+    Hello_lbl.configure(text=f'Текущий трек: {cur_track.name}')
+def play():
+    global cur_track
+    if cur_track:
+        cur_track.run1()
+def pause():
+    global cur_track
+    if cur_track:
+        cur_track.pause1()
+def cont():
+    global cur_track
+    if cur_track:
+        cur_track.continue1()
 pg.init()
 pg.mixer.init()
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 root = ctk.CTk()
 root.title('MusicPlayer')
-root.geometry("500x500")
+root.geometry("1000x500")
 btn = ctk.CTkButton(root,text='Выберите трек', command=open_trek)
+Hello_lbl = ctk.CTkLabel(root, text=f'Загрузите трек')
+Hello_lbl.pack()
 btn.pack()
+frame_btn = ctk.CTkFrame(root, fg_color="transparent")
+frame_btn.pack(pady=40)
+btn_play = ctk.CTkButton(frame_btn,text='Играть сначала',state = 'disabled', command=play)
+btn_play.pack(side="left", padx=10)
+btn_pause = ctk.CTkButton(frame_btn,text='Пауза',state = 'disabled', command=pause)
+btn_pause.pack(side="left", padx=10)
+btn_cont = ctk.CTkButton(frame_btn,text='Продолжить',state = 'disabled', command=cont)
+btn_cont.pack(side="left", padx=10)
+lbl2 = ctk.CTkLabel(frame_btn,state = 'disabled', text='Гомкость:')
+lbl2.pack(side="left", padx=10)
+scale = ctk.CTkSlider(frame_btn,state = 'disabled', width=100, from_=0, to=1, command=change)
+scale.pack(side="left", padx=10)
 root.mainloop()
