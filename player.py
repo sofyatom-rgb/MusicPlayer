@@ -3,14 +3,14 @@ import pygame as pg
 import time
 import customtkinter as ctk
 from tkinter import filedialog
-
+import json
 class Track:
     def __init__(self, filepath):
         self.filepath = filepath
         self.name = os.path.basename(self.filepath)
         self.liked = False
     def like(self):
-        Track.liked = not(Track.liked)
+        self.liked = not(self.liked)
     def start_new(self):
         pg.mixer.music.load(self.filepath)
         print(f'Текущий трек: {self.name}')
@@ -61,6 +61,38 @@ def cont():
     global cur_track
     if cur_track:
         cur_track.continue1()
+playlists = {}
+def make_playlist(name):
+    global playlists
+    pl = Playlist(name)
+    playlists[name] = pl
+    with open('playlists.json', 'w', encoding='utf-8') as f:
+        json.dump(playlists, f, default=track_ser, ensure_ascii=False)
+def add_to_pl(pl, song):
+    global playlists
+    if song not in playlists[pl].tracks:
+        playlists[pl].add(song)
+
+def dell(pl, song):
+    global playlists
+    if song in playlists[pl].tracks:
+        playlists[pl].delete(song)
+def track_ser(pl):
+    a = []
+    for i in pl.tracks:
+        a.append(i.filepath)
+    return {'name': pl.name, 'tracks': a}
+def loadd():
+    global playlists
+    with open('playlists.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    for n, t in data.items():
+        playlists[n] = Playlist(n)
+        for i in t['tracks']:
+            curt = Track(i)
+            playlists[n].add(curt)
+if os.path.isfile('playlists.json'):
+    loadd()
 pg.init()
 pg.mixer.init()
 ctk.set_appearance_mode("System")
