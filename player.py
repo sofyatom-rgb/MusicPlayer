@@ -4,6 +4,7 @@ import time
 import customtkinter as ctk
 from tkinter import filedialog
 import json
+paused = False
 class Track:
     def __init__(self, filepath):
         self.filepath = filepath
@@ -19,21 +20,47 @@ class Track:
         pg.mixer.music.queue(self.filepath)
         print(f'Трек {self.name} добавлен в очередь')
     def run1(self):
+        global paused
+        paused = False
         pg.mixer.music.play()
         print('ВВедите 0 чтобы поставить на паузу')
     def pause1(self):
+        global paused
+        paused = True
         pg.mixer.music.pause()
         print('Трек на паузе, введите 2 чтобы возобновить его')
     def continue1(self):
+        global paused
+        paused = False
         pg.mixer.music.unpause()
 class Playlist:
     def __init__(self, name):
         self.name = name
         self.tracks = []
+        self.cur_tr = None
+    def _play_cur(self):
+        pg.mixer.music.load(self.tracks[self.cur_tr].filepath)
+        pg.mixer.music.play()
     def add(self, track):
         self.tracks.append(track)
+        if self.cur_tr == None: self.cur_tr = 0
     def delete(self, track):
         self.tracks.remove(track)
+    def start(self):
+        if len(self.tracks) > 0:
+            self.cur_tr = 0
+            self._play_cur()
+    def cont(self):
+        if len(self.tracks) > 0:
+            self._play_cur()
+    def next(self):
+        self.cur_tr += 1
+        self.cur_tr %= len(self.tracks)
+        self._play_cur()
+    def prev(self):
+        self.cur_tr -= 1
+        if self.cur_tr < 0: self.cur_tr = len(self.tracks)-1
+        self._play_cur()
 cur_track = None
 def change(newVal):
     global cur_track
@@ -91,6 +118,8 @@ def loadd():
         for i in t['tracks']:
             curt = Track(i)
             playlists[n].add(curt)
+# def playlist_start(name):
+#
 if os.path.isfile('playlists.json'):
     loadd()
 pg.init()
