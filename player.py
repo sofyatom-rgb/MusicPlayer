@@ -5,6 +5,8 @@ import customtkinter as ctk
 from tkinter import filedialog
 import json
 paused = False
+cur_playlist = None
+cur_track = None
 class Track:
     def __init__(self, filepath):
         self.filepath = filepath
@@ -23,12 +25,10 @@ class Track:
         global paused
         paused = False
         pg.mixer.music.play()
-        print('ВВедите 0 чтобы поставить на паузу')
     def pause1(self):
         global paused
         paused = True
         pg.mixer.music.pause()
-        print('Трек на паузе, введите 2 чтобы возобновить его')
     def continue1(self):
         global paused
         paused = False
@@ -61,7 +61,12 @@ class Playlist:
         self.cur_tr -= 1
         if self.cur_tr < 0: self.cur_tr = len(self.tracks)-1
         self._play_cur()
-cur_track = None
+def end_chek():
+    global cur_playlist
+    global paused
+    if pg.mixer.music.get_busy() == False and paused == False and cur_playlist != None:
+        cur_playlist.next()
+    root.after(500, end_chek)
 def change(newVal):
     global cur_track
     if cur_track:
@@ -93,8 +98,11 @@ def make_playlist(name):
     global playlists
     pl = Playlist(name)
     playlists[name] = pl
+    global cur_playlist
+    cur_playlist = pl
     with open('playlists.json', 'w', encoding='utf-8') as f:
         json.dump(playlists, f, default=track_ser, ensure_ascii=False)
+    pick_menu.configure(values=[name for name in playlists.keys()])
 def add_to_pl(pl, song):
     global playlists
     if song not in playlists[pl].tracks:
@@ -118,8 +126,21 @@ def loadd():
         for i in t['tracks']:
             curt = Track(i)
             playlists[n].add(curt)
-# def playlist_start(name):
-#
+def pl_maker():
+    dialog = ctk.CTkInputDialog(text='Введите название плейлиста', title='Новый плейлист')
+    name = dialog.get_input().strip()
+    if len(name) > 0:
+        make_playlist(name)
+def pl_picker(choice):
+    global cur_playlist
+    global playlists
+    cur_playlist = playlists[choice]
+    plstart_btn.configure(text=f'Играть {cur_playlist.name} сначала')
+    plstart_btn.configure(state='normal')
+def pl_start():
+    global cur_playlist
+    if cur_playlist != None:
+        cur_playlist.start()
 if os.path.isfile('playlists.json'):
     loadd()
 pg.init()
@@ -145,4 +166,14 @@ lbl2 = ctk.CTkLabel(frame_btn,state = 'disabled', text='Гомкость:')
 lbl2.pack(side="left", padx=10)
 scale = ctk.CTkSlider(frame_btn,state = 'disabled', width=100, from_=0, to=1, command=change)
 scale.pack(side="left", padx=10)
+frame_pl = ctk.CTkFrame(root, fg_color="transparent")
+frame_pl.pack(pady=40)
+makepl_btn = ctk.CTkButton(frame_pl, text='Создать плейлист', command=pl_maker)
+makepl_btn.pack(side="left", padx=10)
+pick_menu = ctk.CTkOptionMenu(frame_pl, values=[name for name in playlists.keys()], command=pl_picker)
+pick_menu.set('Выберите плейлист')
+pick_menu.pack(side="left", padx=10)
+plstart_btn = ctk.CTkButton(frame_pl, text=f'Играть плейлист сначала',state = 'disabled', command=pl_start)
+plstart_btn.pack(side="left", padx=10)
+end_chek()
 root.mainloop()
